@@ -34,6 +34,7 @@ import {
 import { submitContactForm } from "@/lib/formspree";
 import { assetPath } from "@/lib/assetPath";
 import { TestimonialsSection } from "@/components/testimonials/TestimonialsSection";
+import { GoogleBusinessMap } from "@/components/contact/GoogleBusinessMap";
 
 const navItems = [
   ["Início", "inicio"],
