@@ -33,6 +33,7 @@ import {
 } from "@/lib/config";
 import { submitContactForm } from "@/lib/formspree";
 import { assetPath } from "@/lib/assetPath";
+import { TestimonialsSection } from "@/components/testimonials/TestimonialsSection";
 
 const navItems = [
   ["Início", "inicio"],
@@ -49,12 +50,8 @@ function Logo({ small = false }: { small?: boolean }) {
     <a
       className={`brand-lockup${small ? " brand-lockup--small" : ""}`}
       href="#inicio"
-      aria-label="SunCar Multimarcas — início"
     >
       <img src={assetPath("logo.png")} alt="SunCar" />
-      <span className="brand-caption">
-        <span>MULTIMARCAS</span> <i />
-      </span>
     </a>
   );
 }
@@ -108,7 +105,7 @@ function VehicleCard({
       <div className="vehicle-image-wrap">
         <img
           src={vehicle.image}
-          alt={`Imagem ilustrativa de um ${vehicle.brand} ${vehicle.model}`}
+          alt={`Imagem de um ${vehicle.brand} ${vehicle.model}`}
           loading="lazy"
         />
         <span className="vehicle-badge">
@@ -147,7 +144,7 @@ function VehicleCard({
             {vehicle.fuel}
           </span>
         </div>
-        <div className="vehicle-price-label">Valor demonstrativo</div>
+        <div className="vehicle-price-label">Valor</div>
         <strong className="vehicle-price">{formatBRL(vehicle.price)}</strong>
         <div className="vehicle-actions">
           <button
@@ -236,7 +233,7 @@ function BrazilRouteGraphic() {
         <MapPin size={14} /> ALAGOAS
       </div>
       <div className="route-tag route-tag--bottom">
-        <Truck size={14} /> DESTINO: VOCÊ
+        <Truck size={14} /> DESTINO: SUA CIDADE
       </div>
     </div>
   );
@@ -351,7 +348,7 @@ export default function Home() {
   function contactByWhatsApp(message: string) {
     if (!whatsAppConfigured) {
       setNotice(
-        "O número oficial do WhatsApp ainda não foi cadastrado. Use o formulário para solicitar contato."
+        "Estamos com algum problema no nosso servidor, favor entrar em contato pelo Instagram ou Google."
       );
       window.setTimeout(() => setNotice(""), 5200);
       return;
@@ -394,7 +391,7 @@ export default function Home() {
     try {
       await submitContactForm(formData);
       setSuccessMessage(
-        "Sua mensagem foi aceita pelo Formspree. A equipe da SunCar poderá responder usando os dados de contato informados."
+        "Sua mensagem foi enviada. A equipe da SunCar irá responder usando os dados de contato informados."
       );
       setFormStatus("success");
       form.reset();
@@ -496,18 +493,18 @@ export default function Home() {
               <h1>
                 Seu próximo carro
                 <br />
-                <span>começa aqui.</span>
+                <span>está aqui.</span>
               </h1>
               <p className="hero-subtitle">
-                Veículos, atendimento próximo e orientação para você comprar com
-                mais clareza — de onde estiver.
+                Veículos, atendimento humanizado e orientação para você comprar com
+                mais clareza e confiança — de onde estiver.
               </p>
               <div className="hero-location">
                 <span className="location-pin">
                   <MapPin size={15} />
                 </span>
                 <span>
-                  <strong>Uma nova sede em Arapiraca</strong>
+                  <strong>Uma nova filial em Arapiraca</strong>
                   <br />
                   Alagoas. Um novo jeito de comprar.
                 </span>
@@ -567,11 +564,6 @@ export default function Home() {
               <div className="hero-aside-line" />
               <ArrowDownRight size={20} />
             </div>
-            <div className="hero-index">
-              <b>01</b>
-              <span>— 07</span>
-              <i />
-            </div>
           </div>
           <div className="hero-bottom-line" aria-hidden="true">
             <span>BUILT AROUND YOUR NEXT MOVE</span>
@@ -627,8 +619,7 @@ export default function Home() {
               </div>
             </div>
             <div className="inventory-disclaimer">
-              <Sparkles size={14} /> Veículos, imagens e valores são exemplos
-              demonstrativos — confirme o estoque real antes de publicar.
+              <Sparkles size={14} /> Alguns carros já podem estar em processo ou com proposta de compra, verifique a disponibilidade com o vendedor.
             </div>
             <div
               className="vehicle-rail"
@@ -702,8 +693,8 @@ export default function Home() {
             <div className="financing-intro">
               <SectionHeading
                 eyebrow="02 / PLANEJE SUA COMPRA"
-                title="Uma parcela que cabe no seu plano."
-                copy="Veja o saldo financiado e uma divisão matemática simples pelo prazo escolhido — sem juros ou tarifas."
+                title="Uma parcela que cabe no seu bolso"
+                copy="Veja o valor financiado e uma divisão matemática simples pelo prazo escolhido — sem juros ou tarifas."
               />
               <div className="financing-points">
                 <div>
@@ -733,7 +724,7 @@ export default function Home() {
             <div className="calculator-card">
               <div className="calculator-topline">
                 <span>
-                  <span className="live-dot" /> SIMULADOR ILUSTRATIVO
+                  <span className="live-dot" /> SIMULADOR FINANCEIRO
                 </span>
                 <span>01 — 03</span>
               </div>
@@ -821,13 +812,13 @@ export default function Home() {
                 />
                 <div className="range-hints">
                   <span>R$ 0</span>
-                  <span>Até 70% do veículo</span>
+                  <span>Até 80% do veículo</span>
                 </div>
               </div>
               <div className="term-block">
                 <span className="field-label">Prazo estimado</span>
                 <div className="term-options">
-                  {[12, 24, 36, 48, 60].map(term => (
+                  {[12, 24, 36, 48, 60, 72].map(term => (
                     <button
                       type="button"
                       key={term}
@@ -877,8 +868,7 @@ export default function Home() {
               </button>
               <p className="calc-legal">
                 Divisão aritmética do saldo pelo prazo, sem juros, tarifas,
-                seguros ou outros custos. Não é proposta de crédito, parcela
-                bancária ou garantia de aprovação. Consulte condições reais.
+                seguros ou outros custos.
               </p>
             </div>
           </div>
@@ -890,7 +880,7 @@ export default function Home() {
               <SectionHeading
                 eyebrow="03 / DA ESCOLHA À SUA CASA"
                 title="Você escolhe o carro. A SunCar cuida do resto."
-                copy="Uma jornada acompanhada de perto, esteja você em Arapiraca ou em outra parte do Brasil."
+                copy="Uma jornada acompanhada de perto, esteja você em Arapiraca ou em qualquer cidade do Brasil."
               />
               <div className="delivery-stamp">
                 <Truck size={17} />
@@ -951,7 +941,7 @@ export default function Home() {
                   <p>
                     Do primeiro contato
                     <br />
-                    ao endereço combinado.
+                    ao endereço do cliente.
                   </p>
                 </div>
                 <BrazilRouteGraphic />
@@ -968,7 +958,7 @@ export default function Home() {
                 <span className="bottom-symbol">↗</span>
                 <div>
                   <strong>Comprou de outro estado?</strong>
-                  <p>Consulte como organizar o transporte.</p>
+                  <p>Consulte como organizar o transporte via Guincho/Cegonha com transportadora autorizada e credenciada.</p>
                 </div>
               </div>
               <div className="delivery-features">
@@ -1000,93 +990,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section testimonials-section" id="clientes">
-          <div className="container">
-            <div className="testimonials-top">
-              <SectionHeading
-                eyebrow="04 / CONFIANÇA SE CONSTRÓI JUNTO"
-                title="Histórias reais merecem espaço."
-                copy="Queremos mostrar experiências verdadeiras de quem comprou com a SunCar. Esta área aguarda os primeiros relatos autorizados."
-              />
-              <div className="testimonial-mark">
-                <span>“</span>
-                <small>
-                  ESPAÇO
-                  <br />
-                  PARA A VOZ
-                  <br />
-                  DOS CLIENTES
-                </small>
-              </div>
-            </div>
-            <article className="story-placeholder">
-              <div className="story-placeholder-copy">
-                <span className="placeholder-pill">
-                  <span /> ESPAÇO RESERVADO
-                </span>
-                <h3>Experiências reais, contadas por quem viveu.</h3>
-                <p>
-                  Ainda não há relatos autorizados para publicar. Nenhum
-                  depoimento, avaliação ou compra foi inventado para preencher
-                  esta seção.
-                </p>
-                <a className="text-link" href="#contato">
-                  Fale com a equipe <ArrowUpRight size={15} />
-                </a>
-              </div>
-              <div
-                className="distance-flow"
-                aria-label="Etapas ilustrativas de uma consulta à distância: cliente, equipe SunCar, transporte sob consulta e destino combinado"
-              >
-                <div>
-                  <span className="distance-flow-icon">
-                    <MapPin size={17} />
-                  </span>
-                  <small>ETAPA 01</small>
-                  <strong>Você</strong>
-                </div>
-                <ArrowRight aria-hidden="true" />
-                <div>
-                  <span className="distance-flow-icon">
-                    <MessageCircle size={17} />
-                  </span>
-                  <small>ETAPA 02</small>
-                  <strong>SunCar</strong>
-                </div>
-                <ArrowRight aria-hidden="true" />
-                <div>
-                  <span className="distance-flow-icon">
-                    <Truck size={17} />
-                  </span>
-                  <small>ETAPA 03</small>
-                  <strong>Transporte a consultar</strong>
-                </div>
-                <ArrowRight aria-hidden="true" />
-                <div>
-                  <span className="distance-flow-icon">
-                    <MapPin size={17} />
-                  </span>
-                  <small>ETAPA 04</small>
-                  <strong>Destino combinado</strong>
-                </div>
-              </div>
-            </article>
-            <div className="states-ribbon">
-              <div>
-                <span className="states-icon">
-                  <MapPin size={17} />
-                </span>
-                <span>
-                  <strong>Atendimento remoto</strong>
-                  <small>Consulte a equipe sobre sua cidade.</small>
-                </span>
-              </div>
-              <span className="states-note">
-                Consulte a equipe sobre seu destino.
-              </span>
-            </div>
-          </div>
-        </section>
+        <TestimonialsSection />
 
         <section className="about-section" id="sobre">
           <div
@@ -1111,9 +1015,7 @@ export default function Home() {
               </h2>
               <div className="about-accent" />
               <p>
-                A SunCar Multimarcas está em sua nova sede em Arapiraca com uma
-                proposta simples: tornar a compra do seu próximo veículo mais
-                fácil, transparente e humana.
+                É com imensa alegria que iniciamos mais um trabalho de excelência da SunCar Veículos Multimarcas. Dessa vez, com nossa filial de Alagoas, iremos proporcionar o que há de melhor e com a maior qualidade do ramo automobilístico. Na SunCar a gente facilita a compra do seu carro de verdade: entrada reduzida, parcelas que cabem no bolso e entrega em qualquer lugar do Brasil. Mais do que vender veículos, nosso foco é oferecer um atendimento humanizado, transparente e sem pressão. Estoque atualizado de novos e seminovos revisados, informações claras e um time pronto para atendê-lo a qualquer momento. Seja muito bem vindo à SunCar Arapiraca!
               </p>
               <a className="button button--outline-light" href="#contato">
                 Conheça a SunCar <ArrowUpRight size={16} />
@@ -1148,7 +1050,7 @@ export default function Home() {
                   <strong>Atendimento próximo, sem complicação.</strong>
                   <p>
                     Preencha o formulário para solicitar um retorno
-                    personalizado.
+                    personalizado em até 2 horas.
                   </p>
                 </div>
               </div>
@@ -1161,7 +1063,7 @@ export default function Home() {
                 </span>
               </div>
               <div className="contact-availability">
-                <span /> Atendimento mediante contato · transporte sob consulta
+                <span /> Atendimento mediante contato · transporte/entregas sob consulta
               </div>
             </div>
             <div className="contact-form-card">
@@ -1342,8 +1244,7 @@ export default function Home() {
                       />
                       <span>
                         Autorizo a SunCar a usar meus dados para responder a
-                        esta solicitação. O envio passa pelo Formspree; evite
-                        incluir informações sensíveis.
+                        esta solicitação.
                       </span>
                     </label>
                     {formError && (
@@ -1382,8 +1283,8 @@ export default function Home() {
                     <p className="form-legal">
                       <ShieldCheck size={13} />
                       {formspreeConfigured
-                        ? "Ao enviar, seus dados serão transmitidos e armazenados pelo Formspree e acessados pela SunCar para responder. Configure o aviso de privacidade da empresa antes de publicar; não inclua dados sensíveis."
-                        : "Envio desativado até configurar o Form ID do Formspree. Nenhum dado será enviado enquanto a configuração estiver vazia."}
+                        ? "Ao enviar, seus dados serão transmitidos e armazenados pela SunCar para responder."
+                        : "Problema no servidor."}
                     </p>
                   </form>
                 </>
@@ -1417,7 +1318,7 @@ export default function Home() {
             <p>
               <MapPin size={15} /> SunCar Multimarcas
               <br />
-              <span>Arapiraca — AL</span>
+              <span>R. Carmelita Caetano da Silva, 121. Arapiraca — AL CEP: 57302-816</span>
             </p>
             <span className="footer-label footer-contact-label">CONTATO</span>
             <button
@@ -1428,9 +1329,8 @@ export default function Home() {
                 )
               }
             >
-              <MessageCircle size={14} /> WhatsApp <ArrowUpRight size={12} />
+              <MessageCircle size={14} /> WhatsApp: (82) 98775-4552 <ArrowUpRight size={12} />
             </button>
-            <small>Número oficial a cadastrar</small>
           </div>
           <a className="back-top" href="#inicio" aria-label="Voltar ao topo">
             <ArrowUpRight size={19} />
@@ -1438,7 +1338,7 @@ export default function Home() {
         </div>
         <div className="container footer-bottom">
           <span>
-            © {new Date().getFullYear()} SunCar Multimarcas. Arapiraca · AL.
+            © {new Date().getFullYear()} SunCar Multimarcas. CNPJ: 08.465.003/0001-02
           </span>
           <span>
             Financiamento sujeito à análise e aprovação da instituição
