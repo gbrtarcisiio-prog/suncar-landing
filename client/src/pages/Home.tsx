@@ -26,7 +26,12 @@ import {
 } from "lucide-react";
 import { vehicles, type Vehicle } from "@/data/vehicles";
 import { calculateFinancing, formatBRL } from "@/lib/financing";
-import { WHATSAPP_NUMBER, whatsappLink } from "@/lib/config";
+import {
+  isFormspreeConfigured,
+  WHATSAPP_NUMBER,
+  whatsappLink,
+} from "@/lib/config";
+import { submitContactForm } from "@/lib/formspree";
 import { assetPath } from "@/lib/assetPath";
 
 const navItems = [
@@ -264,6 +269,7 @@ export default function Home() {
     [selectedPrice, downPayment, months]
   );
   const whatsAppConfigured = WHATSAPP_NUMBER.replace(/\D/g, "").length >= 12;
+  const formspreeConfigured = isFormspreeConfigured();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 28);
@@ -370,44 +376,38 @@ export default function Home() {
       setFormError("Confira o DDD e o número do WhatsApp.");
       return;
     }
-    if (!whatsAppConfigured) {
+    if (!formspreeConfigured) {
       setFormStatus("error");
       setFormError(
-        "O número oficial de WhatsApp ainda não foi cadastrado. Seus dados não foram enviados nem armazenados."
+        "O Formspree ainda não está configurado. Copie o Form ID do painel para VITE_FORMSPREE_FORM_ID em .env.local e gere o site novamente. Nenhum dado foi enviado."
       );
       return;
     }
     const formData = new FormData(form);
-    const vehicleName = vehicles.find(
-      vehicle => vehicle.id === String(formData.get("vehicle"))
+    formData.set("phone", phone);
+    formData.set(
+      "_subject",
+      `Novo contato SunCar — ${String(formData.get("name") || "Cliente")}`
     );
-    const message = [
-      "Olá, SunCar! Gostaria de conversar sobre um veículo.",
-      `Nome: ${String(formData.get("name") || "")}`,
-      `WhatsApp: ${String(formData.get("phone") || "")}`,
-      `E-mail: ${String(formData.get("email") || "")}`,
-      `Cidade/Estado: ${String(formData.get("city") || "")}`,
-      `Interesse: ${String(formData.get("type") || "")}`,
-      `Veículo: ${vehicleName ? `${vehicleName.brand} ${vehicleName.model}` : "Ainda estou pesquisando"}`,
-      `Mensagem: ${String(formData.get("message") || "Não informada")}`,
-    ].join("\n");
+    formData.set("source", "Landing page SunCar Multimarcas");
     setFormStatus("loading");
-    const whatsappWindow = window.open(
-      whatsappLink(message),
-      "_blank",
-      "noopener,noreferrer"
-    );
-    if (!whatsappWindow) {
+    try {
+      await submitContactForm(formData);
+      setSuccessMessage(
+        "Sua mensagem foi aceita pelo Formspree. A equipe da SunCar poderá responder usando os dados de contato informados."
+      );
+      setFormStatus("success");
+      form.reset();
+      setPhone("");
+      setContactVehicle("");
+    } catch (error) {
       setFormStatus("error");
       setFormError(
-        "O navegador bloqueou a abertura do WhatsApp. Permita a nova janela e tente novamente."
+        error instanceof Error
+          ? error.message
+          : "Não foi possível enviar agora. Tente novamente em instantes."
       );
-      return;
     }
-    setSuccessMessage(
-      "Uma conversa foi aberta no WhatsApp com seus dados preenchidos. Nada foi armazenado; revise a mensagem e toque em Enviar no WhatsApp para concluir."
-    );
-    setFormStatus("success");
   }
 
   const selectedContactOption = contactVehicle;
@@ -1170,8 +1170,8 @@ export default function Home() {
                   <span className="success-check">
                     <CheckCircle2 size={29} />
                   </span>
-                  <Eyebrow>WHATSAPP ABERTO</Eyebrow>
-                  <h3>Revise e envie a mensagem.</h3>
+                  <Eyebrow>MENSAGEM RECEBIDA</Eyebrow>
+                  <h3>Obrigado por falar com a SunCar.</h3>
                   <p>{successMessage}</p>
                   <button
                     className="button button--dark"
@@ -1182,7 +1182,7 @@ export default function Home() {
                       setSuccessMessage("");
                     }}
                   >
-                    Voltar ao formulário <ArrowLeft size={15} />
+                    Enviar outra mensagem <ArrowLeft size={15} />
                   </button>
                 </div>
               ) : (
@@ -1196,7 +1196,23 @@ export default function Home() {
                       01 <i /> 03
                     </span>
                   </div>
-                  <form onSubmit={handleSubmit} noValidate>
+                  <form
+                    onSubmit={handleSubmit}
+                    noValidate
+                    aria-busy={formStatus === "loading"}
+                  >
+                    <div className="form-honeypot" aria-hidden="true">
+                      <label htmlFor="contact-website">
+                        Não preencha este campo
+                      </label>
+                      <input
+                        id="contact-website"
+                        name="_gotcha"
+                        type="text"
+                        tabIndex={-1}
+                        autoComplete="off"
+                      />
+                    </div>
                     <div className="form-row">
                       <div className="field">
                         <label htmlFor="name">
@@ -1228,7 +1244,7 @@ export default function Home() {
                           }
                           required
                           aria-describedby={
-                            formError ? "phone-error" : undefined
+                            formError ? "form-error" : undefined
                           }
                         />
                       </div>
@@ -1313,15 +1329,26 @@ export default function Home() {
                         placeholder="Conte um pouco mais sobre o que você procura..."
                       />
                     </div>
+                    <label
+                      className="privacy-consent"
+                      htmlFor="privacy-consent"
+                    >
+                      <input
+                        id="privacy-consent"
+                        name="privacy_consent"
+                        type="checkbox"
+                        value="Autorizo o contato sobre esta solicitação"
+                        required
+                      />
+                      <span>
+                        Autorizo a SunCar a usar meus dados para responder a
+                        esta solicitação. O envio passa pelo Formspree; evite
+                        incluir informações sensíveis.
+                      </span>
+                    </label>
                     {formError && (
-                      <p className="form-error" id="phone-error" role="alert">
+                      <p className="form-error" id="form-error" role="alert">
                         {formError}
-                      </p>
-                    )}
-                    {formStatus === "error" && !formError && (
-                      <p className="form-error" role="alert">
-                        {formError ||
-                          "Não foi possível abrir o WhatsApp. Tente novamente."}
                       </p>
                     )}
                     <div className="form-submit-row">
@@ -1332,15 +1359,11 @@ export default function Home() {
                       >
                         {formStatus === "loading" ? (
                           <>
-                            <span className="button-spinner" /> Validando
-                            formulário…
+                            <span className="button-spinner" /> Enviando…
                           </>
                         ) : (
                           <>
-                            {whatsAppConfigured
-                              ? "Continuar no WhatsApp"
-                              : "Validar dados (demonstração)"}{" "}
-                            <ArrowRight size={17} />
+                            Enviar mensagem <ArrowRight size={17} />
                           </>
                         )}
                       </button>
@@ -1358,9 +1381,9 @@ export default function Home() {
                     </div>
                     <p className="form-legal">
                       <ShieldCheck size={13} />
-                      {whatsAppConfigured
-                        ? "A conversa abre no WhatsApp para você revisar e enviar. Este site não armazena os dados digitados."
-                        : "Demonstração sem envio: nenhum dado será armazenado. O WhatsApp oficial ainda não foi cadastrado."}
+                      {formspreeConfigured
+                        ? "Ao enviar, seus dados serão transmitidos e armazenados pelo Formspree e acessados pela SunCar para responder. Configure o aviso de privacidade da empresa antes de publicar; não inclua dados sensíveis."
+                        : "Envio desativado até configurar o Form ID do Formspree. Nenhum dado será enviado enquanto a configuração estiver vazia."}
                     </p>
                   </form>
                 </>

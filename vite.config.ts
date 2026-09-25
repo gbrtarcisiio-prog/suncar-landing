@@ -209,6 +209,57 @@ function vitePluginStorageProxy(): Plugin {
   };
 }
 
+function vitePluginLocalMedia(): Plugin {
+  const mediaRoot = path.resolve(PROJECT_ROOT, "hosting-assets", "media");
+  const knownExtensions: Record<string, string> = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".webp": "image/webp",
+  };
+
+  return {
+    name: "suncar-local-media",
+    configureServer(server) {
+      server.middlewares.use("/media", (req, res, next) => {
+        if (req.method !== "GET" && req.method !== "HEAD") return next();
+        const filename = path.basename((req.url || "").split("?")[0]);
+        const contentType =
+          knownExtensions[path.extname(filename).toLowerCase()];
+        if (!filename || !contentType) {
+          res.writeHead(404);
+          res.end();
+          return;
+        }
+
+        const mediaPath = path.resolve(mediaRoot, filename);
+        if (!mediaPath.startsWith(`${mediaRoot}${path.sep}`)) {
+          res.writeHead(404);
+          res.end();
+          return;
+        }
+
+        fs.stat(mediaPath, (error, metadata) => {
+          if (error || !metadata.isFile()) {
+            res.writeHead(404);
+            res.end();
+            return;
+          }
+          res.setHeader("Content-Type", contentType);
+          res.setHeader("Content-Length", metadata.size);
+          res.setHeader("Cache-Control", "public, max-age=3600");
+          if (req.method === "HEAD") {
+            res.writeHead(200);
+            res.end();
+            return;
+          }
+          fs.createReadStream(mediaPath).pipe(res);
+        });
+      });
+    },
+  };
+}
+
 const isPortableBuild = process.env.SUNCAR_PORTABLE_BUILD === "true";
 const plugins = [
   react(),
@@ -219,6 +270,7 @@ const plugins = [
         vitePluginManusRuntime(),
         vitePluginManusDebugCollector(),
         vitePluginStorageProxy(),
+        vitePluginLocalMedia(),
       ]
     : []),
 ];

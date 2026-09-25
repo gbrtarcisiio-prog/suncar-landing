@@ -1,28 +1,44 @@
-# Relatório de auditoria e refinamento — SunCar Multimarcas
+# Relatório técnico — SunCar Multimarcas
 
-## Alterações concluídas
+## Resumo da rodada
 
-A landing page existente foi preservada. A identidade vermelho/grafite/branco, a navegação, o hero, a vitrine, o simulador, o fluxo de entrega, o estado vazio de depoimentos, a seção institucional, o formulário e o rodapé permanecem no projeto; o trabalho foi feito incrementalmente, sem refazer a aplicação nem trocar a stack.
+A landing page existente foi preservada. A seção “Histórias reais merecem espaço” foi corrigida, o formulário ganhou envio AJAX direto ao Formspree mantendo a arquitetura frontend-only, e foram acrescentados testes e tutoriais para a empresa atualizar a página e adaptar o template para outros clientes.
 
-Foram corrigidos o lockup truncado em 320 px, a manchete desktop excessivamente quebrada, os elementos laterais que apertavam layouts intermediários e os alvos de toque do menu, do carrossel e de ações móveis. O botão flutuante do WhatsApp respeita a área segura do celular e sai de cena na seção de contato. A navegação mobile declara seus controles, move o foco ao abrir e o devolve ao botão ao fechar.
+## 1. Correção da seção “Histórias reais merecem espaço”
 
-A taxa não confirmada de 1,79% foi removida: o simulador agora mostra apenas a divisão do saldo pelo prazo, o total simples e um aviso explícito de que não considera juros, tarifas, seguros ou outros custos. O fluxo de entrega passou a indicar transporte sob consulta, sem afirmar transportadora específica, inspeção já realizada ou cobertura garantida. Três avaliações fictícias foram substituídas por um aviso honesto de que a seção aguarda relatos autorizados.
+**Causa identificada:** em `client/src/pages/Home.tsx`, a seção já usava os seletores `.story-placeholder`, `.story-placeholder-copy` e `.distance-flow`. Em `client/src/index.css`, havia regras remanescentes para a estrutura anterior (`.testimonial-grid`, `.testimonial-card`, `.quote-placeholder`), mas não estilos para os nomes atualmente usados no JSX. O card aparecia como conteúdo sem a hierarquia/grid previstos e não havia layout de mobile para a sequência ilustrativa.
 
-O formulário não aparenta enviar ou armazenar dados. Sem o número oficial configurado, a tentativa apenas apresenta um aviso. Quando a empresa cadastrar o número, os dados serão pré-preenchidos em uma conversa WhatsApp para a pessoa revisar e enviar manualmente. O site não grava submissões. Foi também removido `framer-motion`, dependência sem uso; o movimento leve existente continua em CSS, com respeito a `prefers-reduced-motion`.
+**Correção:** estilos desktop em duas colunas com fundo grafite, texto organizado e quatro etapas; em até 640 px o card empilha texto e fluxo, e as setas passam a apontar para baixo. O estado vazio continua honesto — nenhum testemunho foi inventado. Está documentado em `TUTORIAL-HISTORIAS-REAIS.md`.
 
-## Verificações executadas
+## 2. Formspree, frontend-only
 
-- Capturas e inspeção visual em **320, 375, 390, 414, 768, 1024, 1280, 1440, 1920 e 2560 px**. Também foram revistas páginas completas em desktop e celular.
-- Verificados carregamento de imagens, existência dos destinos de links internos, seleção de veículo no fluxo card → simulador, pré-seleção no fluxo card → formulário, labels dos campos obrigatórios e ausência de sucesso falso antes da submissão. Um formulário preenchido com dados sintéticos foi validado no navegador: com WhatsApp sem configuração, exibiu o aviso de bloqueio, não apresentou sucesso e não transmitiu dados. Nenhum dado real foi enviado.
-- `pnpm install --frozen-lockfile --offline`: concluído.
-- `pnpm lint`: concluído (TypeScript e formatação Prettier).
-- `pnpm test`: **4 testes aprovados** para cálculo e formatação monetária.
-- `pnpm build`: concluído.
-- `pnpm build:static`: concluído e copiou **nove assets locais** para `dist/public/media`.
-- Build estático inspecionado para assegurar a ausência do runtime, collector, caminho de storage e referências internas de preview Manus.
+- Criado `client/src/lib/formspree.ts`, que faz POST HTTPS de `FormData` ao endpoint público Formspree usando o `VITE_FORMSPREE_FORM_ID`.
+- O ID vazio/inválido interrompe o fluxo **antes de `fetch`**; a tela explica a configuração necessária.
+- Implementados estados de envio/sucesso/erro, mensagem de rate limit (`429`) e surfacing de erros do endpoint.
+- Incluído honeypot `_gotcha` conforme a documentação Formspree e consentimento obrigatório de contato.
+- O aviso do formulário informa explicitamente que os dados são transmitidos e armazenados pelo Formspree. A política de privacidade, destinatário de notificações, retenção e configuração da conta ainda precisam ser preenchidos/revisados pela empresa.
+- O Form ID **não foi fornecido** nesta tarefa. Logo, não foi possível realizar uma submissão real ao Formspree; a integração está pronta, mas permanece bloqueada até `VITE_FORMSPREE_FORM_ID` ser configurado localmente e recompilado. Não use API key privada no frontend.
+- Passo a passo em `TUTORIAL-FORMSPREE.md`; referências oficiais em `REFERENCIAS-FORMSPREE.md`.
 
-## Pré-requisitos comerciais antes de publicar
+## 3. Reutilização
 
-Os seis registros em `client/src/data/vehicles.ts`, incluindo modelos, preços, anos, quilometragens, versões, badges e fotos são **dados ilustrativos**, não estoque anunciado. Atualize-os ou remova os itens que não estejam confirmados. As imagens dos veículos também são conceituais.
+Criado `TUTORIAL-REUTILIZACAO.md` com caminhos de marca, textos, navegação/IDs, fotos, schema de inventário, tokens cromáticos, mídia, SEO/favicon, canais de contato, simulador, testes e critérios pré-publicação. Nenhum telefone, e-mail, endereço, preço, depoimento ou condição comercial novo foi inventado.
 
-Preencha `WHATSAPP_NUMBER` em `client/src/lib/config.ts` com o número oficial em dígitos, incluindo DDI e DDD. Confirme endereço completo, contato, domínio, condições financeiras, custos/prazos por destino e textos de cobertura antes de anunciá-los. Depoimentos só devem entrar com autorização. Se desejar captura automática de leads, será necessária integração apropriada e revisão de privacidade. O guia de instalação e publicação está em `PRODUCAO.md`.
+## 4. Validação executada
+
+- `pnpm lint`: passou (TypeScript e formatação Prettier).
+- `pnpm test`: **8 testes aprovados**, incluindo POST com mock, validação de ID, mensagem `422`, rate limit e erro de rede; testes não se conectam ao serviço externo.
+- `pnpm build:static`: passou; copiou as 9 imagens/logo locais para `dist/public/media` e confirmou ausência de runtime, collector e storage-proxy internos no bundle estático.
+- Smoke test HTTP: `200` para `/`, `/media/logo.png`, imagens de hero/showroom e `/favicon.svg`.
+- Preview visual: revisadas páginas completas no celular (390 px) e desktop (1440 px); capturas também feitas em 320, 640, 641, 768 e 1920 px. O preview do servidor ajustou algumas capturas de path ao topo da página, por isso a verificação específica do layout da seção incluiu a página completa e a medida DOM de 1280 px.
+- DOM em 1280 px: `.story-placeholder` computa `display:grid`, duas colunas, sem overflow do card; `.distance-flow` computa sete tracks para quatro etapas e três setas. Sem overflow horizontal no documento.
+- Envio com campos sintéticos, checkbox marcado e Form ID vazio: a mensagem instruiu a configurar a variável; **0 requisições a `formspree.io` e nenhum estado de sucesso**. Nenhum dado real foi enviado.
+
+## 5. Pendências antes de go-live
+
+1. Criar Form no painel Formspree e configurar o Form ID público em `.env.local` como `VITE_FORMSPREE_FORM_ID=...`; reiniciar Vite e gerar novamente `pnpm build:static`.
+2. Configurar e testar destinatário de notificação/fluxo de submissão, revisar aviso de privacidade, base/finalidade, retenção e direitos dos titulares com o responsável da empresa.
+3. Trocar os seis veículos, dados e fotografias ilustrativos do arquivo `client/src/data/vehicles.ts` por inventário confirmado.
+4. Atualizar o número de WhatsApp em `client/src/lib/config.ts` quando houver número oficial.
+5. Confirmar endereço, condições comerciais e logísticas, políticas e domínio. A seção de histórias só deve receber relatos reais com autorização de publicação.
+6. Repetir teste controlado via Formspree e verificar a submissão no painel antes da divulgação.

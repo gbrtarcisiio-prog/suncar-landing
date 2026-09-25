@@ -9,7 +9,7 @@
     "start": "NODE_ENV=production node dist/index.js",
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
-    "lint": "pnpm check && pnpm exec prettier --check client/src/pages/Home.tsx client/src/index.css client/src/data/vehicles.ts client/src/lib/financing.ts client/src/lib/config.ts client/src/lib/assetPath.ts client/src/lib/financing.test.ts client/index.html scripts/build-static.mjs vite.config.ts",
+    "lint": "pnpm check && pnpm exec prettier --check client/src/pages/Home.tsx client/src/index.css client/src/data/vehicles.ts client/src/lib/financing.ts client/src/lib/config.ts client/src/lib/assetPath.ts client/src/lib/formspree.ts client/src/lib/financing.test.ts client/src/lib/formspree.test.ts client/index.html scripts/build-static.mjs vite.config.ts",
     "test": "vitest run",
     "build:static": "node scripts/build-static.mjs",
     "format": "prettier --write ."

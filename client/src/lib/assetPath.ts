@@ -1,10 +1,14 @@
+const hostname = typeof window === "undefined" ? "" : window.location.hostname;
+const isManusPreviewHost =
+  import.meta.env.DEV &&
+  /\.manus(?:-asia|pre)?\.computer$|\.manuscomputer\.ai$/i.test(hostname);
 const ASSET_BASE = (
   import.meta.env.VITE_ASSET_BASE ||
-  (import.meta.env.DEV ? "/manus-storage" : "/media")
+  (isManusPreviewHost ? "/manus-storage" : "/media")
 ).replace(/\/+$/, "");
 
 export function assetPath(filename: string) {
-  if (import.meta.env.DEV && ASSET_BASE === "/manus-storage") {
+  if (isManusPreviewHost && ASSET_BASE === "/manus-storage") {
     const previewAssets: Record<string, string> = {
       "logo.png": "logo_1864b974.png",
       "hero-editorial-opt.jpg": "hero-editorial-opt_5c139c0f.jpg",
