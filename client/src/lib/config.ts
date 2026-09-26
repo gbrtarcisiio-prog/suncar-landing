@@ -1,5 +1,6 @@
 // Número oficial de WhatsApp: somente dígitos, com DDI + DDD. Opcional.
-export const WHATSAPP_NUMBER = "";
+export const WHATSAPP_NUMBER = "55" + "82" + "987754552";
+
 
 // O Form ID é público no frontend; configure VITE_FORMSPREE_FORM_ID no .env.local.
 // Nunca adicione uma API key privada ao código do navegador.

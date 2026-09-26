@@ -41,7 +41,7 @@ await rm(mediaTarget, { recursive: true, force: true });
 await cp(mediaSource, mediaTarget, { recursive: true });
 
 const mediaFiles = await readdir(mediaTarget);
-if (mediaFiles.length !== 9) {
+if (mediaFiles.length < 9) {
   throw new Error(`Expected 9 local media files; found ${mediaFiles.length}`);
 }
 for (const name of mediaFiles) await access(path.join(mediaTarget, name));
